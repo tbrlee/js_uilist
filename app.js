@@ -12,6 +12,8 @@ loadeventListeners();
 function loadeventListeners() {
     //Add event for submit button of the list
     form.addEventListener('submit', addTask);
+    //Remove task event from the list
+    taskList.addEventListener('click', removeTask);
 }
 
 //Add task function for the submit button
@@ -43,3 +45,13 @@ function addTask(e) {
 
     e.preventDefault();
 }
+
+//Delete or remove the task
+function removeTask(e) {
+    //console.log(e.target);
+    if(e.target.parentElement.classList.contains('delete-item')) {
+        if(confirm('Are you sure?'))
+        e.target.parentElement.parentElement.remove();
+    } 
+    
+} 
