@@ -14,6 +14,10 @@ function loadeventListeners() {
     form.addEventListener('submit', addTask);
     //Remove task event from the list
     taskList.addEventListener('click', removeTask);
+    //Clear the task lists
+    clearBtn.addEventListener('click', clearTasks);
+    //Fiter Tasks
+    filter.addEventListener('keyup', filterTasks);
 }
 
 //Add task function for the submit button
@@ -40,11 +44,30 @@ function addTask(e) {
    //Append li to ul
     taskList.appendChild(li);
 
+    //Store the list into the localstorage without been deleted upon refreshing the page  
+    storeTaskInLocalStorage(taskInput.value);
+
     //Clear the Input
     taskInput.value = '';
 
     e.preventDefault();
 }
+//Store the Task
+function storeTaskInLocalStorage(task) {
+    let tasks;
+    if(localStorage.getItem('tasks') === null) {
+        tasks = []; //if local storage is empty create an empty array
+    } else {
+        //get the tring value of localstorage and convert(parse) to Javascript object
+        tasks = JSON.parse(localStorage.getItem('tasks'));
+    }
+
+    //Push the input value on the tasks array
+    tasks.push(task);
+
+    //Convert Javascript object to string of JSON data for localstorage 
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+} 
 
 //Delete or remove the task
 function removeTask(e) {
@@ -55,3 +78,30 @@ function removeTask(e) {
     } 
     
 } 
+
+//Clear Tasks
+function clearTasks() {
+    //taskList.innerHTML = '';
+
+    //Eficient performance for clearing the list
+    while(taskList.firstChild) {
+        taskList.removeChild(taskList.firstChild);
+    }
+}
+
+//Filter Tasks
+function filterTasks(e) {
+const text = e.target.value.toLowerCase();
+
+document.querySelectorAll('.collection-item').forEach(
+    function(task) {
+        const item = task.firstChild.textContent;
+        if(item.toLocaleLowerCase().indexOf(text) != -1) {
+            task.style.display = 'block';
+        } else {
+            task.style.display = 'none';
+        }
+    });
+
+//console.log(text);
+}
