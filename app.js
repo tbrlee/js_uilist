@@ -10,6 +10,8 @@ loadeventListeners();
 
 //Create function for storing event listeners 
 function loadeventListeners() {
+    //DOM Load event
+    document.addEventListener('DOMContentLoaded', getTasks);
     //Add event for submit button of the list
     form.addEventListener('submit', addTask);
     //Remove task event from the list
@@ -18,6 +20,37 @@ function loadeventListeners() {
     clearBtn.addEventListener('click', clearTasks);
     //Fiter Tasks
     filter.addEventListener('keyup', filterTasks);
+}
+
+//Get Tasks from the list
+function getTasks() {
+    let tasks;
+    if(localStorage.getItem('tasks') === null) {
+        tasks = []; //if local storage is empty create an empty array
+    } else {
+        //get the tring value of localstorage and convert(parse) to Javascript object
+        tasks = JSON.parse(localStorage.getItem('tasks'));
+    }
+
+    tasks.forEach(function(task) {
+        //Create li element
+        const li = document.createElement('li');
+        //Create class for the li 
+        li.className = 'collection-item';
+        //Create text node and append it to li tag
+        li.appendChild(document.createTextNode(task));
+        //Create link element
+        const link = document.createElement('a');
+        //Add classes to the link
+        link.className = 'delete-item secondary-content';
+        //Create delete icon in the HTML
+        link.innerHTML = '<i class="fa fa-remove"></i>';
+        //Append link under li tag
+        li.appendChild(link);
+
+    //Append li to ul
+        taskList.appendChild(li);
+    });
 }
 
 //Add task function for the submit button
@@ -73,13 +106,39 @@ function storeTaskInLocalStorage(task) {
 function removeTask(e) {
     //console.log(e.target);
     if(e.target.parentElement.classList.contains('delete-item')) {
-        if(confirm('Are you sure?'))
-        e.target.parentElement.parentElement.remove();
+        if(confirm('Are you sure?')) {
+            e.target.parentElement.parentElement.remove();
+
+            //Remove lists from main list
+            removeTaskFromLocalStorage(e.target.parentElement.parentElement);
+        }
+        
     } 
     
 } 
 
-//Clear Tasks
+//Remove from main list function
+function removeTaskFromLocalStorage(taskItem) {
+    //console.log(taskItem);
+
+ let tasks;
+  if(localStorage.getItem('tasks') === null){
+    tasks = [];
+  } else {
+    tasks = JSON.parse(localStorage.getItem('tasks'));
+  }
+
+  //Loop to find existence of list of text within the task localstorage
+  tasks.forEach(function(task, index){
+    if(taskItem.textContent === task){
+      tasks.splice(index, 1);
+    }
+  });
+
+  localStorage.setItem('tasks', JSON.stringify(tasks));
+}
+
+//Clear Tasks function
 function clearTasks() {
     //taskList.innerHTML = '';
 
@@ -87,7 +146,13 @@ function clearTasks() {
     while(taskList.firstChild) {
         taskList.removeChild(taskList.firstChild);
     }
+    clearTasksFromLocalStorage();
 }
+
+//Clear the lists from localstorage
+function clearTasksFromLocalStorage() {
+    localStorage.clear();
+  }
 
 //Filter Tasks
 function filterTasks(e) {
